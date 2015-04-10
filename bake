@@ -15,6 +15,9 @@ if [ ! -e /data/usr/bin/pip ]; then
     if [ -e /usr/bin/pip3 ]; then
         PIP=pip3;
     fi
+    if [ -e /opt/python34/bin/pip ]; then
+        PIP=/opt/python34/bin/pip;
+    fi
     $PIP install --upgrade --user --download-cache=/cache/pip pip wheel setuptools;
 fi
 
@@ -49,6 +52,30 @@ WORKDIR /data
 CMD ["/bin/bash", "/opt/install"]
 """
 
+DOCKERFILE_PYENV = """
+FROM debian:{debian}
+
+RUN apt-get update && apt-get install -y git libssl-dev make gcc libbz2-dev \
+    libreadline-dev libsqlite3-dev curl {packages}
+
+RUN mkdir /src && cd /src && git clone https://github.com/yyuu/pyenv.git && \
+    cd pyenv && git checkout v20150226
+
+RUN cd /src/pyenv/plugins/python-build/ && ./install.sh
+
+RUN python-build 3.4.2 /opt/python34
+
+RUN ln -s /opt/python34/bin/ptyhon /usr/local/bin/python3 && \
+    ln -s /opt/python34/bin/pip /usr/local/bin/pip3
+
+ENV PYTHONUSERBASE /data/usr
+
+COPY install /opt/install
+
+WORKDIR /data
+CMD ["/bin/bash", "/opt/install"]
+
+"""
 
 def mkdir_p(path):
     if not os.path.exists(path):
@@ -74,16 +101,16 @@ with open('requirements.txt', 'r') as f:
             elif 'pypy' in tokens:
                 python = 'pypy'
 
-if debian == 'wheezy' and python == '3.4':
-    raise Exception('Choose Jessie, please, for python 3.4')
-
 print "Using python {python} on a {debian}\n".format(debian=debian,
                                                      python=python)
 
 if python == '2.7':
     tpl = DOCKERFILE
 elif python == '3.4':
-    tpl = DOCKERFILE_3
+    if debian == 'wheezy':
+        tpl = DOCKERFILE_PYENV
+    else:
+        tpl = DOCKERFILE_3
 elif python == 'pypy':
     pass  # TODO
 
