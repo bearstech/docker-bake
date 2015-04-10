@@ -1,7 +1,18 @@
 Bake your pip with Docker
 =========================
 
-You need Python and Docker (even Boot2docker).
+Install your beloved python packages, in a [user base directory](https://docs.python.org/2/library/site.html#site.USER_BASE), right here.
+
+You can choose your Python version (2.7 or 3.4) and Debian version (Wheezy or Jessie).
+
+Python and Docker (even Boot2docker) are needed.
+
+No options, no configuration, just annotations in the `requirements.txt`.
+
+Sources and wheels are cached.
+
+Using it
+--------
 
 Go in a folder with a requirements.txt, something like that:
 
@@ -25,7 +36,7 @@ Enjoy your `usr` folder:
 
 And enjoy your cache:
 
-    ls ~/.bake/wheel
+    ls ~/.bake/*
 
 Licence
 -------
