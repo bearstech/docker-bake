@@ -19,7 +19,7 @@ ENV XDG_CACHE_HOME /cache/pip
 WORKDIR /data
 """
 
-with open('requierements.txt', 'r') as f:
+with open('requirements.txt', 'r') as f:
     packages = []
     for line in f:
         if len(line) and line[0] == '#':
@@ -43,11 +43,11 @@ with open('requierements.txt', 'r') as f:
                 'bake', 'pip', 'wheel',
                 '--wheel-dir', '/cache/wheel',
                 '--use-wheel', '--find-links', '/cache/wheel',
-                '-r', 'requierements.txt'])
+                '-r', 'requirements.txt'])
     print p.wait()
     p = Popen(['docker', 'run', '--rm', '-v',
                 '%s:/data' % os.getcwd(), '-v', '%s:/cache' % cache ,
                 'bake', 'pip', 'install', '--no-index', '--upgrade',
                 '--find-links', '/cache/wheel',
-                '--user', '-r', 'requierements.txt'])
+                '--user', '-r', 'requirements.txt'])
     print p.wait()
