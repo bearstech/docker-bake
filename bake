@@ -40,7 +40,6 @@ DOCKERFILE_3 = """
 FROM debian:{debian}
 
 RUN apt-get update && apt-get install -y python3-pip python3-dev {packages}
-#RUN pip3 install --upgrade pip wheel setuptools
 
 ENV PYTHONUSERBASE /data/usr
 
