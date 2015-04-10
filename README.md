@@ -17,7 +17,7 @@ Python and Debian versions are guessed from the comments.
 
 Bake it:
 
-    ./bake.py
+    ./bake
 
 Enjoy your `usr` folder:
 
