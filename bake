@@ -10,28 +10,18 @@ SPACE = re.compile("\s+")
 INSTALL = """#!/bin/bash
 set -e
 
-if [ ! -e /data/usr/bin/pip ]; then
-    PIP=pip
-    if [ -e /usr/bin/pip3 ]; then
-        PIP=pip3;
-    fi
-    if [ -e /opt/python34/bin/pip ]; then
-        PIP=/opt/python34/bin/pip;
-    fi
-    $PIP install --upgrade --user --download-cache=/cache/pip pip wheel setuptools;
+if [ ! -e ./bin/python ] ; then
+    virtualenv . ;
 fi
 
-/data/usr/bin/pip wheel --wheel-dir /cache/wheel --cache-dir /cache/pip --use-wheel --find-links /cache/wheel -r requirements.txt
-
-/data/usr/bin/pip install --no-index --upgrade --find-links /cache/wheel --user -r requirements.txt
+/data/bin/pip install --upgrade --cache-dir /cache -r requirements.txt
 """
 
 DOCKERFILE = """
 FROM debian:{debian}
 
 RUN apt-get update && apt-get install -y python-pip python-dev {packages}
-
-ENV PYTHONUSERBASE /data/usr
+RUN pip install --upgrade virtualenv
 
 COPY install /opt/install
 
@@ -43,8 +33,7 @@ DOCKERFILE_3 = """
 FROM debian:{debian}
 
 RUN apt-get update && apt-get install -y python3-pip python3-dev {packages}
-
-ENV PYTHONUSERBASE /data/usr
+RUN pip3 install --upgrade virtualenv
 
 COPY install /opt/install
 
@@ -67,8 +56,6 @@ RUN python-build 3.4.2 /opt/python34
 
 RUN ln -s /opt/python34/bin/ptyhon /usr/local/bin/python3 && \
     ln -s /opt/python34/bin/pip /usr/local/bin/pip3
-
-ENV PYTHONUSERBASE /data/usr
 
 COPY install /opt/install
 
@@ -128,6 +115,6 @@ cache = os.path.expanduser('~/.bake/')
 mkdir_p(cache)
 mkdir_p('usr')
 
-p = Popen(['docker', 'run', '--rm', '-v', '%s:/data' % os.getcwd(),
+p = Popen(['docker', 'run', '--rm', '-v', '%s:/data' % os.getcwd(), #  '--user=bake',
            '-v', '%s:/cache' % cache, tag])
 assert p.wait() == 0
